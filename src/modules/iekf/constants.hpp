@@ -294,7 +294,7 @@ const float flow_sigma_rw = 1e-2f; // rad/s / sqrt(s)
 const float process_noise_sigma_xy = 0; // (m) / sqrt(s)
 const float process_noise_sigma_vxy = 1e-1; // (m/s) / sqrt(s)
 const float process_noise_sigma_z = 0; // (m) / sqrt(s)
-const float process_noise_sigma_vz = 1e-1; // (m/s) / sqrt(s)
+const float process_noise_sigma_vz = 1e-2; // (m/s) / sqrt(s)
 const float process_noise_sigma_rot = 1e-3; // (rad) / sqrt(s)
 
 const float gps_xy_sigma_rw = 2e0f; // m / sqrt(s)

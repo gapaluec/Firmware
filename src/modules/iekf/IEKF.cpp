@@ -42,7 +42,7 @@ IEKF::IEKF() :
 	// sensors
 	_sensorAccel("accel", betaMaxDefault, condMaxDefault, 50),
 	_sensorMag("mag", betaMaxDefault, condMaxDefault, 50),
-	_sensorBaro("baro", betaMaxDefault, condMaxDefault, 0),
+	_sensorBaro("baro", betaMaxDefault, condMaxDefault, 50),
 	_sensorGps("gps", betaMaxDefault, condMaxDefault, 0),
 	_sensorAirspeed("airspeed", betaMaxDefault, condMaxDefault, 0),
 	_sensorFlow("flow", betaMaxDefault, condMaxDefault, 0),
@@ -766,7 +766,6 @@ void IEKF::publish()
 	bool attitudeValid = getAttitudeValid();
 	bool velocityValid = getVelocityValid();
 	bool positionValid = getPositionValid();
-	bool terrainValid = getTerrainValid();
 
 	// publish attitude
 	if (attitudeValid) {
@@ -783,11 +782,11 @@ void IEKF::publish()
 	}
 
 	// publish local position
-	if (_origin.xyInitialized() && _origin.altInitialized() && velocityValid) {
+	if (_origin.altInitialized()) {
 		vehicle_local_position_s msg = {};
 		msg.timestamp = now.toNSec() / 1e3;
 		msg.xy_valid = positionValid;
-		msg.z_valid = positionValid;
+		msg.z_valid = getAltitudeValid();
 		msg.v_xy_valid = velocityValid;
 		msg.v_z_valid = velocityValid;
 		msg.x = _x(X::pos_N);
@@ -818,7 +817,7 @@ void IEKF::publish()
 		msg.dist_bottom = getAgl(_x);
 		msg.dist_bottom_rate = -_x(X::vel_D);
 		msg.surface_bottom_timestamp = now.toNSec() / 1e3;
-		msg.dist_bottom_valid = terrainValid;
+		msg.dist_bottom_valid = getAglValid();
 		msg.eph = eph;
 		msg.epv = epv;
 		_pubLocalPosition.publish(msg);
@@ -848,7 +847,7 @@ void IEKF::publish()
 		msg.eph = eph;
 		msg.epv = epv;
 		msg.terrain_alt = _x(X::terrain_asl);
-		msg.terrain_alt_valid = terrainValid;
+		msg.terrain_alt_valid = getTerrainValid();
 		msg.dead_reckoning = false;
 		msg.pressure_alt = _baroAsl;
 		_pubGlobalPosition.publish(msg);

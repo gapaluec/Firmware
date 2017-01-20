@@ -114,31 +114,47 @@ public:
 		boundX();
 	}
 	void publish();
-	bool getAttitudeValid()
+	inline bool getAttitudeValid()
 	{
-		return _attitudeInitialized;
+		return _attitudeInitialized &&
+		       ((_P(Xe::rot_N, Xe::rot_N)
+			 + _P(Xe::rot_E, Xe::rot_E)
+			 + _P(Xe::rot_D, Xe::rot_D)) < 1.0f);
+
 	};
-	bool getVelocityValid()
+	inline bool getVelocityValid()
 	{
-		return (_P(Xe::vel_N, Xe::vel_N)
-			+ _P(Xe::vel_E, Xe::vel_E)
-			+ _P(Xe::vel_D, Xe::vel_D)) < 1.0f;
+		return ((_P(Xe::vel_N, Xe::vel_N)
+			 + _P(Xe::vel_E, Xe::vel_E)
+			 + _P(Xe::vel_D, Xe::vel_D)) < 3.0f);
 	};
-	bool getPositionValid()
+	inline bool getPositionValid()
 	{
-		return (_P(Xe::pos_N, Xe::pos_N)
-			+ _P(Xe::pos_E, Xe::pos_E)
-			+ _P(Xe::asl, Xe::asl)) < 1.0f;
+		return _origin.xyInitialized()
+		       && ((_P(Xe::pos_N, Xe::pos_N)
+			    + _P(Xe::pos_E, Xe::pos_E)
+			    + _P(Xe::asl, Xe::asl)) < 3.0f);
 	};
-	bool getTerrainValid()
+	inline bool getAltitudeValid()
 	{
-		return _origin.altInitialized() && _P(Xe::terrain_asl, Xe::terrain_asl) < 1.0f;
+		return _origin.altInitialized()
+		       && (_P(Xe::asl, Xe::asl) < 1.0f);
 	};
-	float getAgl(Vector<float, X::n> &x)
+	inline bool getAglValid()
+	{
+		return _origin.altInitialized()
+		       && (_P(Xe::asl, Xe::asl) < 1.0f)
+		       && (_P(Xe::terrain_asl, Xe::terrain_asl) < 1.0f);
+	};
+	inline bool getTerrainValid()
+	{
+		return (_P(Xe::terrain_asl, Xe::terrain_asl) < 1.0f);
+	};
+	inline float getAgl(Vector<float, X::n> &x)
 	{
 		return x(X::asl) - x(X::terrain_asl);
 	}
-	float getAltAboveOrigin(Vector<float, X::n> &x)
+	inline float getAltAboveOrigin(Vector<float, X::n> &x)
 	{
 		return x(X::asl) - _origin.getAlt();
 	};
